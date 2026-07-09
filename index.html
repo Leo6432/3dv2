@@ -454,7 +454,22 @@ body.blue-theme {
     pointer-events: none; /* Mouse passes through image to trigger card hover */
 }
 
-.card:hover img {
+.card-audi {
+    width: 170px;
+    height: 130px;
+    margin-top: -7rem;
+    margin-bottom: -1rem;
+    filter: drop-shadow(0 20px 35px rgba(0, 0, 0, 0.5));
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    display: block;
+    will-change: transform;
+    pointer-events: none; /* Mouse passes through model to trigger card hover */
+    --poster-color: transparent;
+    --progress-bar-color: transparent;
+}
+
+.card:hover img,
+.card:hover .card-audi {
     transform: translateY(-30px) rotate(-12deg) scale(1.15) !important;
 }
 
@@ -596,14 +611,14 @@ body.blue-theme {
             <div class="product-carousel">
                 <div class="carousel-cards">
                     <div class="card active" data-flavor="classic">
-                        <img src="https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/Green%20Soda.png" alt="Diet Classic">
+                        <model-viewer class="card-audi" data-tint="white" src="assets/audi-r8.glb" alt="Diet Classic" camera-orbit="60deg 68deg 125%" field-of-view="25deg" interaction-prompt="none" environment-image="neutral" exposure="1.1" shadow-intensity="0.8"></model-viewer>
                         <div class="card-info">
                             <span>Diet Classic</span>
                             <span>$2.99</span>
                         </div>
                     </div>
                     <div class="card" data-flavor="blue">
-                        <img src="https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/Blue%20Soda.png" alt="Zero Lime" style="filter: brightness(0.7);">
+                        <model-viewer class="card-audi" data-tint="black" src="assets/audi-r8.glb" alt="Zero Lime" camera-orbit="60deg 68deg 125%" field-of-view="25deg" interaction-prompt="none" environment-image="neutral" exposure="1.1" shadow-intensity="0.8"></model-viewer>
                         <div class="card-info">
                             <span>Zero Lime</span>
                             <span>$2.99</span>
@@ -647,6 +662,25 @@ let isSwitching = false;
 let switchSpin = 0;
 let blueTexture = null;
 let greenTexture = null;
+
+// Tint the Audi R8 card models (white for Diet Classic, black for Zero Lime)
+const AUDI_PAINT_MATERIALS = ['Steel', 'Car_Paint', 'Car_Paint-2', 'Paint', 'Paint_001'];
+const AUDI_TINTS = {
+    white: [0.92, 0.92, 0.94, 1],
+    black: [0.03, 0.03, 0.035, 1]
+};
+document.querySelectorAll('.card-audi').forEach(audi => {
+    audi.addEventListener('load', () => {
+        const color = AUDI_TINTS[audi.dataset.tint];
+        audi.model.materials.forEach(material => {
+            if (AUDI_PAINT_MATERIALS.includes(material.name)) {
+                material.pbrMetallicRoughness.setBaseColorFactor(color);
+                material.pbrMetallicRoughness.setMetallicFactor(0.6);
+                material.pbrMetallicRoughness.setRoughnessFactor(0.35);
+            }
+        });
+    });
+});
 
 // Preload textures & Warm up shaders
 modelViewer.addEventListener('load', async () => {
